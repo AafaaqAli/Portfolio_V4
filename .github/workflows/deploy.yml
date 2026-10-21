@@ -36,12 +36,14 @@ jobs:
 
           upload() {
             local relpath="$1"
-            local content response
-            content="$(base64 -w 0 "$relpath")"
+            local response
+            # Stream the encoded file from disk; passing it as an argument
+            # breaks on anything over ~128 KB ("Argument list too long").
+            base64 -w 0 "$relpath" > "$RUNNER_TEMP/upload.b64"
             response="$(curl -sS -X POST "$DEPLOY_URL" \
               -H "Authorization: Bearer ${DEPLOY_SECRET}" \
               --data-urlencode "path=${relpath}" \
-              --data-urlencode "content=${content}")"
+              --data-urlencode "content@${RUNNER_TEMP}/upload.b64")"
             if ! echo "$response" | grep -q '"ok":true'; then
               echo "Failed to upload ${relpath}"
               echo "$response"
