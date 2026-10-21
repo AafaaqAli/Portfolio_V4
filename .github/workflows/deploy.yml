@@ -1,0 +1,99 @@
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only list old files that would be removed, delete nothing"
+        type: boolean
+        default: false
+
+name: 🚀 Deploy website
+jobs:
+  web-deploy:
+    name: 🎉 Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
+
+      - name: 📂 Sync files via HTTPS
+        env:
+          DEPLOY_SECRET: ${{ secrets.DEPLOY_SECRET }}
+          DEPLOY_URL: https://aafaq.com.pk/deploy.php
+        run: |
+          if [ -z "$DEPLOY_SECRET" ]; then
+            echo "::error::DEPLOY_SECRET is not set."
+            echo "FTP deploy from GitHub does not work on this server (passive port timeout)."
+            echo "Set up HTTPS deploy:"
+            echo "  1. Upload deploy.php to public_html/ via cPanel File Manager"
+            echo "  2. Create .deploy_secret in public_html/ with a random string"
+            echo "  3. Add the same string as DEPLOY_SECRET in GitHub Secrets"
+            exit 1
+          fi
+
+          upload() {
+            local relpath="$1"
+            local content response
+            content="$(base64 -w 0 "$relpath")"
+            response="$(curl -sS -X POST "$DEPLOY_URL" \
+              -H "Authorization: Bearer ${DEPLOY_SECRET}" \
+              --data-urlencode "path=${relpath}" \
+              --data-urlencode "content=${content}")"
+            if ! echo "$response" | grep -q '"ok":true'; then
+              echo "Failed to upload ${relpath}"
+              echo "$response"
+              exit 1
+            fi
+            echo "$relpath" >> "$RUNNER_TEMP/manifest.txt"
+            echo "Uploaded ${relpath}"
+          }
+
+          echo "Deploying via HTTPS → public_html/"
+          : > "$RUNNER_TEMP/manifest.txt"
+
+          # Update the endpoint first so the cleanup step below is available.
+          upload deploy.php
+
+          while IFS= read -r -d '' file; do
+            upload "${file#./}"
+          done < <(find . -type f \
+            ! -path './.git/*' \
+            ! -path './.github/*' \
+            ! -path './.idea/*' \
+            ! -path './.claude/*' \
+            ! -name '.DS_Store' \
+            ! -name 'README.md' \
+            ! -name 'VERSION' \
+            ! -name '.deploy_secret' \
+            ! -name 'deploy.php' \
+            -print0)
+
+          echo "Deploy complete — $(wc -l < "$RUNNER_TEMP/manifest.txt") files uploaded to public_html/"
+
+      - name: 🧹 Remove files from the old site
+        env:
+          DEPLOY_SECRET: ${{ secrets.DEPLOY_SECRET }}
+          DEPLOY_URL: https://aafaq.com.pk/deploy.php
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: |
+          response="$(curl -sS -X POST "$DEPLOY_URL" \
+            -H "Authorization: Bearer ${DEPLOY_SECRET}" \
+            --data-urlencode "action=cleanup" \
+            --data-urlencode "dry_run=${DRY_RUN}" \
+            --data-urlencode "manifest@${RUNNER_TEMP}/manifest.txt")"
+
+          if ! echo "$response" | grep -q '"ok":true'; then
+            echo "::error::Cleanup failed. Nothing was deleted by this step."
+            echo "$response"
+            exit 1
+          fi
+
+          if [ "$DRY_RUN" = "1" ]; then
+            echo "Dry run: these old files WOULD be removed:"
+          else
+            echo "Removed old files:"
+          fi
+          echo "$response" | python3 -c 'import json,sys; d=json.load(sys.stdin)["deleted"]; print("\n".join("  " + p for p in d) or "  (none)")'

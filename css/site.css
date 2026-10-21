@@ -560,6 +560,92 @@ a.brand:hover { color: var(--accent-ink); }
 
 .lede strong { font-weight: 600; color: var(--ink); }
 .hero .lede { max-width: 44rem; color: var(--muted); }
+
+/* Hero portrait: two aligned images crossfade with the theme */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 3rem;
+}
+.hero .stats { grid-column: 1 / -1; }
+
+.portrait {
+  position: relative;
+  display: grid;
+  width: clamp(15rem, 26vw, 21rem);
+  aspect-ratio: 1;
+  margin: 0;
+  border-radius: 50%;
+}
+.portrait::before {
+  content: "";
+  position: absolute;
+  inset: -0.6rem;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%);
+  transition: border-color 0.7s ease, background 0.7s ease;
+}
+.portrait img {
+  grid-area: 1 / 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.7s ease;
+}
+.portrait-light { opacity: 1; transform: none; filter: none; }
+.portrait-dark { opacity: 0; transform: scale(0.98); filter: brightness(0.85); }
+
+[data-theme="dark"] .portrait-light { opacity: 0; transform: scale(0.98); filter: brightness(0.7); }
+[data-theme="dark"] .portrait-dark { opacity: 1; transform: none; filter: none; }
+
+/* Circular theme reveal (view transitions): the new theme is drawn final,
+   then uncovered by a growing circle, so nothing fades through grey. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) { z-index: 2; }
+html.theme-reveal *:not(.theme-thumb):not(.theme-glyph svg),
+html.theme-reveal *::before,
+html.theme-reveal *::after { transition: none !important; }
+
+/* Fallback: while the theme flips, every surface fades on the same clock */
+html.theming *:not(.portrait img),
+html.theming *::before,
+html.theming *::after {
+  transition:
+    background-color 0.6s ease,
+    background 0.6s ease,
+    color 0.6s ease,
+    border-color 0.6s ease,
+    fill 0.6s ease,
+    box-shadow 0.6s ease !important;
+}
+html.theming .theme-thumb,
+html.theming .theme-glyph svg {
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease, background-color 0.6s ease, color 0.6s ease !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait img, .portrait::before { transition: opacity 0.2s linear; }
+}
+
+@media (max-width: 800px) {
+  .hero { grid-template-columns: 1fr; }
+  .portrait {
+    grid-row: 1;
+    width: 8.5rem;
+    margin: 0 0 1.4rem 0.6rem;
+  }
+  .portrait::before { inset: -0.4rem; }
+}
 .hero .lede strong { color: var(--ink); }
 
 .socials { display: inline-flex; gap: 0.55rem; margin-left: 0.35rem; }

@@ -16,13 +16,51 @@
 
   paint(theme());
 
+  // Fallback for browsers without view transitions: fade colours together.
+  function fadeTo(next) {
+    root.classList.add("theming");
+    paint(next);
+    clearTimeout(toggle.themingTimer);
+    toggle.themingTimer = setTimeout(function () {
+      root.classList.remove("theming");
+    }, 750);
+  }
+
+  // Reveal the new theme as a circle growing from the toggle. Every pixel is
+  // either fully old or fully new, so text never washes out mid-switch.
+  function revealTo(next) {
+    var box = toggle.getBoundingClientRect();
+    var x = box.left + box.width / 2;
+    var y = box.top + box.height / 2;
+    var r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    root.classList.add("theme-reveal");
+    var transition = document.startViewTransition(function () {
+      paint(next);
+    });
+    transition.ready.then(function () {
+      root.animate(
+        { clipPath: ["circle(0px at " + x + "px " + y + "px)", "circle(" + r + "px at " + x + "px " + y + "px)"] },
+        { duration: 700, easing: "cubic-bezier(0.22, 1, 0.36, 1)", pseudoElement: "::view-transition-new(root)" }
+      );
+    });
+    transition.finished.then(function () {
+      root.classList.remove("theme-reveal");
+    });
+  }
+
   if (toggle) {
     toggle.addEventListener("click", function () {
       var next = theme() === "dark" ? "light" : "dark";
       try {
         localStorage.setItem("theme", next);
       } catch (err) {}
-      paint(next);
+      if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        paint(next);
+      } else if (document.startViewTransition) {
+        revealTo(next);
+      } else {
+        fadeTo(next);
+      }
     });
   }
 
