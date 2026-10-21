@@ -943,3 +943,16 @@ html.theming .theme-glyph svg {
   .card, .skill, .panel { box-shadow: none; }
   a { text-decoration: none; color: #000; }
 }
+
+/* Footer link to the site's source */
+.source-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.source-link svg { width: 0.95em; height: 0.95em; fill: currentColor; }
+.source-link:hover { color: var(--accent); text-decoration: underline; }
