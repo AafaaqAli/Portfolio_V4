@@ -124,8 +124,23 @@ a:hover { color: var(--accent); }
   padding: 0.35rem 0;
 }
 
+.nav a { position: relative; transition: color 0.2s ease; }
+.nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
 .nav a:hover,
-.nav a[aria-current="page"] { color: var(--ink); }
+.nav a[aria-current] { color: var(--ink); }
+.nav a[aria-current]::after { transform: scaleX(1); }
 
 .theme-toggle {
   position: relative;

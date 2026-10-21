@@ -118,6 +118,66 @@
     if (resumeContact) revealContact(resumeContact, showContact);
   });
 
+  // Highlight the menu item for the section being read.
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll('.nav a[href^="#"]'));
+  var spied = navLinks
+    .map(function (link) { return document.getElementById(link.getAttribute("href").slice(1)); })
+    .filter(Boolean);
+  var lockedId = null;
+  var lockTimer;
+
+  function setActive(id) {
+    navLinks.forEach(function (link) {
+      if (link.getAttribute("href") === "#" + id) {
+        link.setAttribute("aria-current", "location");
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+  }
+
+  function currentSection() {
+    if (!spied.length) return null;
+    // At the very bottom, the last section wins even if it is short.
+    if (window.innerHeight + window.pageYOffset >= document.documentElement.scrollHeight - 4) {
+      return spied[spied.length - 1].id;
+    }
+    var line = (header ? header.offsetHeight : 0) + window.innerHeight * 0.3;
+    var id = null;
+    spied.forEach(function (section) {
+      if (section.getBoundingClientRect().top <= line) id = section.id;
+    });
+    return id;
+  }
+
+  var ticking = false;
+  function onScroll() {
+    // While a clicked link scrolls into place, keep it selected until
+    // the scrolling has been quiet for a moment.
+    if (lockedId) {
+      clearTimeout(lockTimer);
+      lockTimer = setTimeout(unlock, 160);
+      return;
+    }
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      ticking = false;
+      setActive(currentSection());
+    });
+  }
+
+  function unlock() {
+    lockedId = null;
+    setActive(currentSection());
+  }
+
+  if (navLinks.length) {
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    onScroll();
+  }
+
   document.querySelectorAll('a[href^="#"]').forEach(function (link) {
     link.addEventListener("click", function (event) {
       var id = link.getAttribute("href").slice(1);
@@ -127,9 +187,16 @@
       var offset = (header ? header.offsetHeight : 0) + 18;
       var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
       window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+      // Replace, not push: section jumps should not pile up in Back history.
       if (history.replaceState) history.replaceState(null, "", "#" + id);
       target.setAttribute("tabindex", "-1");
       target.focus({ preventScroll: true });
+
+      lockedId = spied.some(function (s) { return s.id === id; }) ? id : null;
+      setActive(lockedId);
+      clearTimeout(lockTimer);
+      // Unlocks once scrolling stops; also covers a click that needs no scroll.
+      lockTimer = setTimeout(unlock, 400);
     });
   });
 })();

@@ -46,12 +46,20 @@ jobs:
               --data-urlencode "content@${RUNNER_TEMP}/upload.b64")"
             if ! echo "$response" | grep -q '"ok":true'; then
               echo "Failed to upload ${relpath}"
-              echo "$response"
+              if echo "$response" | grep -qi 'request is being verified'; then
+                echo "::error::The server's anti-bot protection (Imunify360) blocked the deploy before it reached deploy.php. Ask your host to exclude /deploy.php from anti-bot protection, or deploy over SSH instead."
+              else
+                echo "$response" | head -c 2000
+              fi
               exit 1
             fi
             echo "$relpath" >> "$RUNNER_TEMP/manifest.txt"
             echo "Uploaded ${relpath}"
           }
+
+          # Cache-bust CSS/JS: browsers keep them for a month, so give each
+          # deploy unique URLs (site.css?v=<commit>) to force a fresh download.
+          sed -i "s/?v=dev/?v=${GITHUB_SHA::8}/g" *.html
 
           echo "Deploying via HTTPS → public_html/"
           : > "$RUNNER_TEMP/manifest.txt"
