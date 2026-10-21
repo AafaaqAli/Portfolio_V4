@@ -200,3 +200,90 @@
     });
   });
 })();
+
+// Easter egg: clicking the footer flag celebrates Pakistan.
+(function () {
+  var flag = document.getElementById("flag-egg");
+  if (!flag) return;
+
+  var toast, toastTimer, layer;
+  var reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+
+  function showToast() {
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.className = "egg-toast";
+      toast.setAttribute("role", "status");
+      toast.setAttribute("aria-live", "polite");
+      toast.innerHTML =
+        '<svg viewBox="0 0 40 40" aria-hidden="true">' +
+        '<circle cx="18" cy="21" r="12" fill="#fff"/>' +
+        '<circle cx="21.5" cy="18.5" r="10.6" fill="#01411c"/>' +
+        '<polygon fill="#fff" points="27.6,8.5 28.8,12.2 32.7,12.2 29.6,14.5 30.7,18.2 27.6,15.9 24.5,18.2 25.6,14.5 22.5,12.2 26.4,12.2"/>' +
+        "</svg>" +
+        "<div><strong>Pakistan Zindabad!</strong>" +
+        "<span>Faith · Unity · Discipline</span></div>";
+      document.body.appendChild(toast);
+    }
+    toast.classList.remove("show");
+    void toast.offsetWidth; // restart the slide-in on repeat clicks
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      toast.classList.remove("show");
+    }, 4500);
+  }
+
+  function burst() {
+    if (!layer) {
+      layer = document.createElement("div");
+      layer.className = "egg-layer";
+      layer.setAttribute("aria-hidden", "true");
+      document.body.appendChild(layer);
+    }
+    var box = flag.getBoundingClientRect();
+    var x0 = box.left + box.width / 2;
+    var y0 = box.top + box.height / 2;
+    var shapes = ["star", "star", "dot", "strip"];
+    var colors = ["green", "white", "leaf", "white", "green"];
+    var count = innerWidth < 600 ? 46 : 70;
+
+    for (var i = 0; i < count; i++) {
+      var bit = document.createElement("span");
+      bit.className = "egg-bit " + shapes[i % shapes.length] + " " + colors[i % colors.length];
+      var size = 7 + Math.random() * 9;
+      bit.style.width = size + "px";
+      bit.style.height = (bit.className.indexOf("strip") > -1 ? size * 1.8 : size) + "px";
+      layer.appendChild(bit);
+
+      // A simple ballistic arc: launch up and out, then fall with gravity.
+      var angle = (-90 + (Math.random() * 130 - 65)) * Math.PI / 180;
+      var speed = 9 + Math.random() * 9;
+      var vx = Math.cos(angle) * speed;
+      var vy = Math.sin(angle) * speed;
+      var spin = (Math.random() * 2 - 1) * 720;
+      var frames = [];
+      for (var t = 0; t <= 60; t += 6) {
+        var x = x0 + vx * t * 1.4;
+        var y = y0 + vy * t * 1.4 + 0.5 * 0.55 * t * t * 1.4;
+        frames.push({
+          transform: "translate(" + x + "px," + y + "px) rotate(" + (spin * t / 60) + "deg)",
+          opacity: t > 42 ? 1 - (t - 42) / 18 : 1
+        });
+      }
+      var anim = bit.animate(frames, {
+        duration: 1700 + Math.random() * 900,
+        easing: "linear",
+        fill: "forwards"
+      });
+      anim.onfinish = (function (el) {
+        return function () { el.remove(); };
+      })(bit);
+    }
+  }
+
+  flag.addEventListener("click", function () {
+    if (!reduceMotion.matches && document.body.animate) burst();
+    showToast();
+  });
+})();
