@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Resume · Aafaq Ali</title>
+  <meta name="description" content="Resume of Aafaq Ali, senior AOSP and Android systems engineer in Islamabad. Updated October 2026.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://aafaq.com.pk/resume.html">
+  <meta property="og:title" content="Resume · Aafaq Ali">
+  <meta property="og:url" content="https://aafaq.com.pk/resume.html">
+  <meta property="og:type" content="profile">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/site.css">
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("theme");
+        var theme = saved || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        document.documentElement.setAttribute("data-theme", theme);
+      } catch (err) {}
+    })();
+  </script>
+</head>
+<body class="resume">
+  <a class="skip" href="#content">Skip to content</a>
+  <header class="site-header no-print">
+    <div class="wrap bar">
+      <nav class="nav" aria-label="Primary">
+        <a href="index.html#experience" target="_blank" rel="noopener noreferrer">Experience</a>
+        <a href="index.html" target="_blank" rel="noopener noreferrer">Home</a>
+        <a href="index.html#contact" target="_blank" rel="noopener noreferrer">Contact</a>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark mode">
+        <span class="theme-thumb">
+          <span class="theme-glyph">
+            <svg class="theme-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4"></circle><path d="M12 1.6v2.2M12 20.2v2.2M4.1 4.1l1.6 1.6M18.3 18.3l1.6 1.6M1.6 12h2.2M20.2 12h2.2M4.1 19.9l1.6-1.6M18.3 5.7l1.6-1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"></path></svg>
+            <svg class="theme-moon" viewBox="4.4 2.5 18 18" aria-hidden="true"><path d="M14.6 3.1a8.4 8.4 0 1 0 6.3 13.6A6.6 6.6 0 0 1 14.6 3.1z"></path></svg>
+          </span>
+        </span>
+      </button>
+    </div>
+  </header>
+
+  <main id="content" class="wrap">
+    <header class="resume-top">
+      <p class="eyebrow">Updated October 2026</p>
+      <h1>Aafaq Ali</h1>
+      <p class="role">Senior AOSP &amp; Android Systems Engineer</p>
+      <p class="meta-line" id="resume-contact">
+        Islamabad, Pakistan ·
+        <button class="show-inline no-print" id="show-contact" type="button">Show email and phone</button>
+      </p>
+      <p class="meta-line">
+        <a href="https://aafaq.com.pk/" target="_blank" rel="noopener noreferrer">aafaq.com.pk</a> ·
+        <a href="https://github.com/AafaaqAli" target="_blank" rel="noopener noreferrer">github.com/AafaaqAli</a> ·
+        <a href="https://www.linkedin.com/in/aafaqali/" target="_blank" rel="noopener noreferrer">linkedin.com/in/aafaqali</a>
+      </p>
+      <p class="lede">Senior Android and AOSP systems engineer. I ship product Android applications, custom ROMs, device management, and the CI/CD path around them. Platform work includes CTS, hardware-backed attestation, eSIM, and Android on POS and embedded devices.</p>
+      <p class="resume-actions no-print">
+        <button class="print" type="button" onclick="window.print()">Save as PDF</button>
+        <a href="index.html" target="_blank" rel="noopener noreferrer">Back to the site</a>
+      </p>
+    </header>
+
+    <section class="section" aria-labelledby="r-exp">
+      <h2 id="r-exp">Experience</h2>
+      <div class="jobs">
+        <article class="job">
+          <h3>Senior AOSP &amp; Android Systems Engineer · BrightByte</h3>
+          <p class="when">CosmoTogether · March 2025 – Present · Hybrid · Islamabad</p>
+          <ul>
+            <li>Turn a hardware change into a signed watch update a customer can install, instead of a one-off build.</li>
+            <li>OS CI/CD: automated builds, artifact signing, versioning, and staged OTA rollouts so a bad update does not hit every device at once.</li>
+            <li>Gerrit checks tied to Jira, Confluence, and Slack, so a field issue can be followed to the build that fixed it.</li>
+            <li>Framework changes that keep device rules in the OS, where deleting an app cannot turn them off.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>Senior AOSP Engineer · Senifone</h3>
+          <p class="when">October 2023 – October 2026 · Remote · Netherlands · Contract</p>
+          <ul>
+            <li>Three-year remote contract from Islamabad for a senior-phone fleet in the Netherlands.</li>
+            <li>Moved a senior-phone fleet off a traditional MDM onto a LineageOS ROM Senifone controls, so support no longer waited on a vendor.</li>
+            <li>Android 10 to 13 upgrades kept phones already in homes supported. Signed OTAs and overlay builds shipped a fix without a site visit.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>Senior Android Consultant · DubizzleLabs</h3>
+          <p class="when">April 2026 – October 2026 · Remote · Contract</p>
+          <ul>
+            <li>Remote contract on device mobility: custom ROM, device enrollment, and the flows around them.</li>
+            <li>Refined enrollment so operations can set up a phone and push camera, Wi-Fi, Bluetooth, and app policy without a manual pass on each handset. Admin portal packaged in Docker.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>Senior Android Engineer · VentureDive</h3>
+          <p class="when">CXApp · October 2023 – March 2025 · Remote</p>
+          <ul>
+            <li>Led Android delivery for a multi-tenant workplace platform used by large enterprise clients.</li>
+            <li>Cut UAT cycles by 25% through CI/CD and release-process changes.</li>
+            <li>Integrated Okta, Intune, WSO2, and SAML. Mentored engineers across releases.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>Senior Android Engineer · CEBS</h3>
+          <p class="when">Matas · September 2022 – October 2023 · Hybrid · Islamabad</p>
+          <ul>
+            <li>Core contributor to Club Matas, a retail loyalty app with 100K+ installs.</li>
+            <li>Raised deployment speed by 15% with GitHub Actions for UAT and internal tracks.</li>
+            <li>Rebuilt tracking and analytics. Held a 99.5% crash-free session rate.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>Senior Android &amp; AOSP Engineer · LEED · Techless</h3>
+          <p class="when">Wisephone / WiseOS · December 2020 – September 2022 · Onsite</p>
+          <ul>
+            <li>System apps and a LineageOS-based OS for a minimalist phone sold to families in the US.</li>
+            <li>Moved device management from BYOD to a controlled custom ROM.</li>
+            <li>Device Policy Manager at the framework level, with firmware changes matched to the hardware.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>Android Engineer · CUBICODES</h3>
+          <p class="when">August 2020 – December 2020 · Onsite · Islamabad</p>
+          <ul>
+            <li>Published utility apps with 10,000+ installs and migrated legacy projects to Kotlin.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>Android Engineer · GrithX Solutions</h3>
+          <p class="when">September 2019 – August 2020 · Hybrid · Islamabad</p>
+          <ul>
+            <li>Patari (100K+ installs): Java to Kotlin, search efficiency up about 30%, Spring Boot APIs.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>Freelance software engineer · Upwork</h3>
+          <p class="when">September 2018 – July 2020 · Islamabad</p>
+          <ul>
+            <li>AOSP consulting, EMDK, wearable integrations, and IoT Android controllers.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>Open source</h3>
+          <p class="when">github.com/AafaaqAli · since January 2017</p>
+          <ul>
+            <li><a href="https://github.com/PeanutButterOrg/PeanutButter" target="_blank" rel="noopener noreferrer">PeanutButter</a>, a self-hosted media catalog with a desktop client and a native Android TV app.</li>
+            <li>MQTT services, Android Wear utilities, and Linux companion-app work including eXtern OS.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="r-projects">
+      <h2 id="r-projects">Selected projects</h2>
+      <div class="jobs">
+        <article class="job">
+          <h3>PeanutButter</h3>
+          <p class="when"><a href="https://github.com/PeanutButterOrg/PeanutButter" target="_blank" rel="noopener noreferrer">github.com/PeanutButterOrg/PeanutButter</a></p>
+          <ul>
+            <li>Self-hosted catalog for media you own. Rust API, Flutter desktop client, and a native Android TV app.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>Senifone · remote AOSP fleet, Netherlands</h3>
+          <p class="when">October 2023 – October 2026 · <a href="https://senifone.co.uk/" target="_blank" rel="noopener noreferrer">senifone.co.uk</a></p>
+          <ul>
+            <li>Company-controlled LineageOS ROM, Android 10 to 13, signed OTAs. Remote contract.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>CodeOS &amp; CryptOS</h3>
+          <p class="when">Private GrapheneOS-based distributions</p>
+          <ul>
+            <li>Hardened builds, a system application suite, a management portal, and automated firmware releases.</li>
+          </ul>
+        </article>
+        <article class="job">
+          <h3>CXApp · Club Matas · WiseOS · Patari</h3>
+          <p class="when">See the roles above for scope and results.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="r-skills">
+      <h2 id="r-skills">Skills</h2>
+      <div class="skill-grid">
+        <div>
+          <h3>Android applications</h3>
+          <p>Kotlin, Java, Jetpack Compose, Coroutines, Hilt, Room, Retrofit, MVVM, MVI, Clean Architecture.</p>
+        </div>
+        <div>
+          <h3>AOSP and firmware</h3>
+          <p>Framework customization, LineageOS, GrapheneOS, hardware bring-up, Device Policy Manager, MDM, overlay builds, OTA, Gerrit.</p>
+        </div>
+        <div>
+          <h3>Compliance and embedded</h3>
+          <p>CTS, hardware-backed attestation, eSIM, POS and embedded Android. GitHub Actions, GitLab CI, Jenkins, Docker, AWS, Azure.</p>
+        </div>
+        <div>
+          <h3>Languages</h3>
+          <p>English, Urdu.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="r-edu">
+      <h2 id="r-edu">Education</h2>
+      <div>
+        <p><strong>Bachelor of Computer Science</strong>, Preston University, Islamabad. 2016 – 2020.</p>
+        <p><strong>Intermediate, Pre-Engineering</strong>, Ghazi University. 2013 – 2016.</p>
+        <p><strong>Matriculation</strong>, GCHHS. 2010 – 2012.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="r-awards">
+      <h2 id="r-awards">Recognition</h2>
+      <ul class="plain-list">
+        <li>ICPC regional, 3rd place.</li>
+        <li>INNOVATIA 19, Android application development, runner-up. COMSATS.</li>
+        <li>INNOVATIA 19, speed programming, runner-up. COMSATS.</li>
+        <li>PSDF software development certification.</li>
+        <li>Highest scorer, English Linguistic Program, July 2024.</li>
+      </ul>
+    </section>
+  </main>
+  <script src="js/site.js"></script>
+</body>
+</html>

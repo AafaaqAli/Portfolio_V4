@@ -1,0 +1,5 @@
+# Keep addresses that the previous theme already published.
+Redirect 301 /portfolio.html https://aafaq.com.pk/#experience
+Redirect 301 /contact.html https://aafaq.com.pk/#contact
+Redirect 301 /blog-3-columns.html https://aafaq.com.pk/
+Redirect 301 /blog.html https://aafaq.com.pk/
