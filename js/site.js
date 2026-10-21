@@ -89,7 +89,7 @@
       var offset = (header ? header.offsetHeight : 0) + 18;
       var top = target.getBoundingClientRect().top + window.pageYOffset - offset;
       window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
-      if (history.pushState) history.pushState(null, "", "#" + id);
+      if (history.replaceState) history.replaceState(null, "", "#" + id);
       target.setAttribute("tabindex", "-1");
       target.focus({ preventScroll: true });
     });
