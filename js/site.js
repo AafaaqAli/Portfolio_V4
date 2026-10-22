@@ -1,3 +1,8 @@
+// Send a custom event to Google Analytics, if it loaded.
+function track(name, params) {
+  if (typeof window.gtag === "function") window.gtag("event", name, params || {});
+}
+
 (function () {
   var root = document.documentElement;
   var toggle = document.getElementById("theme-toggle");
@@ -54,6 +59,7 @@
       try {
         localStorage.setItem("theme", next);
       } catch (err) {}
+      track("theme_toggle", { theme: next });
       if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
         paint(next);
       } else if (document.startViewTransition) {
@@ -111,6 +117,7 @@
   if (showContact) {
     showContact.addEventListener("click", function () {
       revealContact(contactDetails || resumeContact, showContact);
+      track("contact_reveal", { page: location.pathname });
     });
   }
 
@@ -285,5 +292,118 @@
   flag.addEventListener("click", function () {
     if (!reduceMotion.matches && document.body.animate) burst();
     showToast();
+    track("easter_egg");
   });
+})();
+
+// Analytics: what people click, copy, and how long they spend on each section.
+(function () {
+  var sections = Array.prototype.slice.call(document.querySelectorAll("main header, main section"));
+  var networks = {
+    "linkedin.com": "linkedin",
+    "github.com": "github",
+    "stackoverflow.com": "stackoverflow",
+    "upwork.com": "upwork"
+  };
+
+  function sectionName(el) {
+    if (!el) return "none";
+    if (el.id) return el.id;
+    var heading = document.getElementById(el.getAttribute("aria-labelledby") || "");
+    return heading ? heading.textContent.trim().toLowerCase() : el.className.split(" ")[0] || "section";
+  }
+
+  function sectionOf(node) {
+    if (!node || !node.closest) return "none";
+    if (node.closest(".site-header")) return "header";
+    if (node.closest("footer")) return "footer";
+    return sectionName(node.closest("main header, main section"));
+  }
+
+  function labelOf(el) {
+    var text = el.getAttribute("aria-label") || el.textContent || "";
+    return text.replace(/\s+/g, " ").trim().slice(0, 100);
+  }
+
+  function networkOf(host) {
+    for (var domain in networks) {
+      if (host === domain || host.slice(-domain.length - 1) === "." + domain) return networks[domain];
+    }
+    return null;
+  }
+
+  document.addEventListener("click", function (event) {
+    if (!event.target.closest) return;
+    var el = event.target.closest("a, button");
+    if (!el) return;
+    var where = sectionOf(el);
+    var label = labelOf(el);
+
+    if (el.tagName === "BUTTON" || /\b(button|icon-btn)\b/.test(el.className)) {
+      track("button_click", { label: label, section: where });
+    }
+    if (el.tagName !== "A") return;
+
+    if (/\.pdf$/i.test(el.pathname)) {
+      track("resume_download", { section: where, page: location.pathname });
+    } else if (el.protocol === "mailto:" || el.protocol === "tel:") {
+      track("contact_click", { method: el.protocol === "tel:" ? "phone" : "email" });
+    } else if (el.host && el.host !== location.host) {
+      var network = networkOf(el.hostname.replace(/^www\./, ""));
+      if (network) {
+        track("social_click", { network: network, link_url: el.href, section: where });
+      }
+    }
+  });
+
+  document.addEventListener("copy", function () {
+    var selection = document.getSelection ? String(document.getSelection()) : "";
+    if (!selection.trim()) return;
+    var node = document.getSelection().anchorNode;
+    track("text_copy", {
+      section: sectionOf(node && node.nodeType === 3 ? node.parentNode : node),
+      copied_text: selection.trim().slice(0, 100),
+      copied_length: selection.length
+    });
+  });
+
+  if (!sections.length) return;
+
+  // Each second the page is visible, credit the section under the middle of the screen.
+  var seconds = {};
+  var seen = {};
+
+  function sectionInView() {
+    var line = window.innerHeight / 2;
+    for (var i = 0; i < sections.length; i++) {
+      var box = sections[i].getBoundingClientRect();
+      if (box.top <= line && box.bottom > line) return sections[i];
+    }
+    return null;
+  }
+
+  setInterval(function () {
+    if (document.visibilityState !== "visible") return;
+    var el = sectionInView();
+    if (!el) return;
+    var name = sectionName(el);
+    seconds[name] = (seconds[name] || 0) + 1;
+    if (!seen[name] && seconds[name] >= 2) {
+      seen[name] = true;
+      track("section_view", { section: name });
+    }
+  }, 1000);
+
+  // Report the time when the visitor leaves or switches tabs, then start a fresh count.
+  function flush() {
+    Object.keys(seconds).forEach(function (name) {
+      if (seconds[name] >= 1) track("section_time", { section: name, seconds_on_section: seconds[name] });
+    });
+    seconds = {};
+  }
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") flush();
+  });
+  window.addEventListener("pagehide", flush);
 })();
