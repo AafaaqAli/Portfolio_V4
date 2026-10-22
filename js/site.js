@@ -382,8 +382,16 @@ function track(name, params) {
     return null;
   }
 
+  // Stop counting after 30 seconds with no scrolling, mouse, keyboard or touch,
+  // so a tab left open does not inflate the time.
+  var lastActive = Date.now();
+  ["scroll", "mousemove", "keydown", "touchstart", "click"].forEach(function (type) {
+    window.addEventListener(type, function () { lastActive = Date.now(); }, { passive: true });
+  });
+
   setInterval(function () {
     if (document.visibilityState !== "visible") return;
+    if (Date.now() - lastActive > 30000) return;
     var el = sectionInView();
     if (!el) return;
     var name = sectionName(el);

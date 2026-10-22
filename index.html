@@ -21,13 +21,18 @@
   <meta name="twitter:description" content="Custom ROMs, signed OTA pipelines, device management, and Android apps with 100K+ installs.">
   <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#12110f" media="(prefers-color-scheme: dark)">
-  <!-- Google Analytics 4 -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-D1ZEYYBL6N"></script>
+  <!-- Google Analytics 4: only on the live site, so local copies and previews are not counted. -->
   <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag("js", new Date());
-    gtag("config", "G-D1ZEYYBL6N");
+    if (/^(www\.)?aafaq\.com\.pk$/.test(location.hostname)) {
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { dataLayer.push(arguments); };
+      gtag("js", new Date());
+      gtag("config", "G-D1ZEYYBL6N");
+      var ga = document.createElement("script");
+      ga.async = true;
+      ga.src = "https://www.googletagmanager.com/gtag/js?id=G-D1ZEYYBL6N";
+      document.head.appendChild(ga);
+    }
   </script>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/site.css?v=dev">
