@@ -229,7 +229,7 @@ function track(name, params) {
         '<polygon fill="#fff" points="27.6,8.5 28.8,12.2 32.7,12.2 29.6,14.5 30.7,18.2 27.6,15.9 24.5,18.2 25.6,14.5 22.5,12.2 26.4,12.2"/>' +
         "</svg>" +
         "<div><strong>Pakistan Zindabad!</strong>" +
-        "<span>Faith · Unity · Discipline</span></div>";
+        "<span>Unity · Faith · Discipline</span></div>";
       document.body.appendChild(toast);
     }
     toast.classList.remove("show");
