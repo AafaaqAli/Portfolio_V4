@@ -19,14 +19,21 @@ jobs:
       - name: 🚚 Get latest code
         uses: actions/checkout@v4
 
+      # Cache-bust CSS/JS: browsers keep them for a month, so give each
+      # deploy unique URLs (site.css?v=<commit>) to force a fresh download.
+      - name: 🏷️ Version CSS and JS links
+        run: sed -i "s/?v=dev/?v=${GITHUB_SHA::8}/g" *.html
+
+      # If this fails (for example Imunify360 blocks it), the FTP step below takes over.
       - name: 📂 Sync files via HTTPS
+        id: https
+        continue-on-error: true
         env:
           DEPLOY_SECRET: ${{ secrets.DEPLOY_SECRET }}
           DEPLOY_URL: https://aafaq.com.pk/deploy.php
         run: |
           if [ -z "$DEPLOY_SECRET" ]; then
             echo "::error::DEPLOY_SECRET is not set."
-            echo "FTP deploy from GitHub does not work on this server (passive port timeout)."
             echo "Set up HTTPS deploy:"
             echo "  1. Upload deploy.php to public_html/ via cPanel File Manager"
             echo "  2. Create .deploy_secret in public_html/ with a random string"
@@ -57,10 +64,6 @@ jobs:
             echo "Uploaded ${relpath}"
           }
 
-          # Cache-bust CSS/JS: browsers keep them for a month, so give each
-          # deploy unique URLs (site.css?v=<commit>) to force a fresh download.
-          sed -i "s/?v=dev/?v=${GITHUB_SHA::8}/g" *.html
-
           echo "Deploying via HTTPS → public_html/"
           : > "$RUNNER_TEMP/manifest.txt"
 
@@ -83,7 +86,74 @@ jobs:
 
           echo "Deploy complete — $(wc -l < "$RUNNER_TEMP/manifest.txt") files uploaded to public_html/"
 
+      - name: 📂 Sync files via FTP (fallback)
+        if: steps.https.outcome == 'failure'
+        env:
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_DIR: ${{ vars.FTP_DIR }}
+          FTP_SERVER: ftp.aafaq.com.pk
+          # The server's TLS certificate is issued to this name, so verify against it.
+          FTP_HOST: shared.bestnodes.com
+        run: |
+          echo "::warning::HTTPS deploy failed, deploying over FTP instead."
+          if [ -z "$FTP_USERNAME" ] || [ -z "$FTP_PASSWORD" ]; then
+            echo "::error::FTP_USERNAME and FTP_PASSWORD are not set in GitHub Secrets, so there is no fallback."
+            exit 1
+          fi
+
+          # Hand the password to curl in a file so it never appears in a command line.
+          printf 'machine %s login %s password %s\n' "$FTP_HOST" "$FTP_USERNAME" "$FTP_PASSWORD" > "$RUNNER_TEMP/netrc"
+          chmod 600 "$RUNNER_TEMP/netrc"
+
+          ftp() {
+            curl -sS --ssl-reqd --netrc-file "$RUNNER_TEMP/netrc" \
+              --connect-to "$FTP_HOST:21:$FTP_SERVER:21" \
+              --connect-timeout 20 --retry 2 --retry-delay 5 "$@"
+          }
+
+          # Find the site folder: the FTP_DIR variable if set, otherwise the FTP
+          # home itself or public_html inside it, whichever holds index.html.
+          if [ -n "$FTP_DIR" ]; then
+            candidates="${FTP_DIR%/}"
+          else
+            candidates=". public_html"
+          fi
+          base=""
+          for dir in $candidates; do
+            if [ "$dir" = "." ]; then url="ftp://$FTP_HOST/"; else url="ftp://$FTP_HOST/$dir/"; fi
+            if ftp --list-only "$url" | grep -qx "index.html"; then
+              base="$url"
+              break
+            fi
+          done
+          if [ -z "$base" ]; then
+            echo "::error::Could not find the live site (no index.html in: $candidates). If FTP timed out above, the host is blocking FTP from GitHub."
+            exit 1
+          fi
+
+          echo "Deploying via FTP → $base"
+          count=0
+          while IFS= read -r -d '' file; do
+            rel="${file#./}"
+            ftp --ftp-create-dirs -T "$rel" "$base$rel"
+            echo "Uploaded $rel"
+            count=$((count + 1))
+          done < <(find . -type f \
+            ! -path './.git/*' \
+            ! -path './.github/*' \
+            ! -path './.idea/*' \
+            ! -path './.claude/*' \
+            ! -name '.DS_Store' \
+            ! -name 'README.md' \
+            ! -name 'VERSION' \
+            ! -name '.deploy_secret' \
+            -print0)
+
+          echo "Deploy complete — $count files uploaded over FTP. Old files are only cleaned up after an HTTPS deploy."
+
       - name: 🧹 Remove files from the old site
+        if: steps.https.outcome == 'success'
         env:
           DEPLOY_SECRET: ${{ secrets.DEPLOY_SECRET }}
           DEPLOY_URL: https://aafaq.com.pk/deploy.php
