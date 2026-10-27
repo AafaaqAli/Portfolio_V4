@@ -416,3 +416,96 @@ function track(name, params) {
   });
   window.addEventListener("pagehide", flush);
 })();
+
+// EXPERIMENTAL (may be removed): ink cursor, a trail of drops that follows the mouse and pools into one blob
+// when it stops. Mouse and trackpad only, and off when reduced motion is asked for.
+(function () {
+  if (!matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+  var COUNT = 18;
+  var SIZE = 26;
+  var svgNS = "http://www.w3.org/2000/svg";
+
+  // The goo filter blurs the drops together, then sharpens the edge back up,
+  // so overlapping circles read as one liquid shape.
+  var svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("width", "0");
+  svg.setAttribute("height", "0");
+  svg.style.position = "absolute";
+  svg.innerHTML =
+    '<filter id="ink-goo" x="-50%" y="-50%" width="200%" height="200%">' +
+    '<feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>' +
+    '<feColorMatrix in="blur" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/>' +
+    "</filter>";
+  document.body.appendChild(svg);
+
+  var layer = document.createElement("div");
+  layer.className = "ink-cursor";
+  layer.setAttribute("aria-hidden", "true");
+  var dots = [];
+  for (var i = 0; i < COUNT; i++) {
+    var el = document.createElement("span");
+    layer.appendChild(el);
+    dots.push({ el: el, x: -100, y: -100 });
+  }
+  document.body.appendChild(layer);
+  document.documentElement.classList.add("has-ink-cursor");
+
+  var mouse = { x: -100, y: -100 };
+  var grow = 1;
+  var hovering = false;
+  var running = false;
+
+  function frame() {
+    // Swell over links and buttons so it is clear they can be clicked.
+    grow += ((hovering ? 1.7 : 1) - grow) * 0.2;
+    var x = mouse.x;
+    var y = mouse.y;
+    for (var i = 0; i < COUNT; i++) {
+      var dot = dots[i];
+      var scale = ((COUNT - i) / COUNT) * grow;
+      dot.el.style.transform =
+        "translate(" + (x - SIZE / 2) + "px," + (y - SIZE / 2) + "px) scale(" + scale + ")";
+      dot.x = x;
+      dot.y = y;
+      // Each drop eases toward the one behind it, which draws out the tail.
+      var next = dots[i + 1] || dots[0];
+      x += (next.x - x) * 0.32;
+      y += (next.y - y) * 0.32;
+    }
+    if (running) requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (running) return;
+    running = true;
+    requestAnimationFrame(frame);
+  }
+
+  document.addEventListener("mousemove", function (event) {
+    if (!layer.classList.contains("is-visible")) {
+      // Arriving from outside the window: start the whole trail at the pointer.
+      dots.forEach(function (dot) { dot.x = event.clientX; dot.y = event.clientY; });
+    }
+    mouse.x = event.clientX;
+    mouse.y = event.clientY;
+    layer.classList.add("is-visible");
+    start();
+  }, { passive: true });
+
+  document.addEventListener("mouseover", function (event) {
+    hovering = !!(event.target.closest && event.target.closest("a, button, [role='button']"));
+  });
+
+  document.documentElement.addEventListener("mouseleave", function () {
+    layer.classList.remove("is-visible");
+  });
+
+  // No need to animate while the tab is in the background.
+  document.addEventListener("visibilitychange", function () {
+    running = false;
+    if (document.visibilityState === "visible") start();
+  });
+})();

@@ -1117,3 +1117,36 @@ html.theming .theme-glyph svg {
 }
 .egg-toast span { display: block; font-size: 0.85rem; opacity: 0.85; }
 [data-theme="dark"] .egg-toast { box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14), 0 18px 40px rgba(0, 0, 0, 0.5); }
+
+/* EXPERIMENTAL (may be removed): ink cursor. White drops with "difference" blending invert whatever is
+   underneath, so the ink reads dark on the light theme and light on the dark one. */
+.ink-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  filter: url(#ink-goo);
+  mix-blend-mode: difference;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.ink-cursor.is-visible { opacity: 1; }
+.ink-cursor span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  will-change: transform;
+}
+/* Only the ink shows: hide the system cursor everywhere, including buttons and links.
+   A transparent 1x1 image hides it where "none" is ignored (Chrome on Linux/Wayland). */
+.has-ink-cursor,
+.has-ink-cursor * {
+  cursor: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAXpeqz8AAAAASUVORK5CYII=") 0 0, none !important;
+}
+@media print {
+  .ink-cursor { display: none; }
+}
