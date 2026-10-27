@@ -8,6 +8,10 @@ on:
         description: "Only list old files that would be removed, delete nothing"
         type: boolean
         default: false
+      use_ftp:
+        description: "Skip the HTTPS deploy and upload over FTP (to test the FTP fallback)"
+        type: boolean
+        default: false
 
 name: 🚀 Deploy website
 jobs:
@@ -27,6 +31,7 @@ jobs:
       # If this fails (for example Imunify360 blocks it), the FTP step below takes over.
       - name: 📂 Sync files via HTTPS
         id: https
+        if: ${{ !inputs.use_ftp }}
         continue-on-error: true
         env:
           DEPLOY_SECRET: ${{ secrets.DEPLOY_SECRET }}
@@ -87,7 +92,7 @@ jobs:
           echo "Deploy complete — $(wc -l < "$RUNNER_TEMP/manifest.txt") files uploaded to public_html/"
 
       - name: 📂 Sync files via FTP (fallback)
-        if: steps.https.outcome == 'failure'
+        if: steps.https.outcome != 'success'
         env:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
@@ -96,7 +101,11 @@ jobs:
           # The server's TLS certificate is issued to this name, so verify against it.
           FTP_HOST: shared.bestnodes.com
         run: |
-          echo "::warning::HTTPS deploy failed, deploying over FTP instead."
+          if [ "${{ steps.https.outcome }}" = "failure" ]; then
+            echo "::warning::HTTPS deploy failed, deploying over FTP instead."
+          else
+            echo "Deploying over FTP, as requested."
+          fi
           if [ -z "$FTP_USERNAME" ] || [ -z "$FTP_PASSWORD" ]; then
             echo "::error::FTP_USERNAME and FTP_PASSWORD are not set in GitHub Secrets, so there is no fallback."
             exit 1
