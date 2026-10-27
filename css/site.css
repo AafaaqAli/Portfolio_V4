@@ -717,7 +717,7 @@ html.theming .theme-glyph svg {
 }
 
 /* Claude Academy badges */
-.academy { margin-top: 2rem; }
+.academy { margin-top: 2rem; scroll-margin-top: 5rem; }
 .academy h3 {
   margin: 0 0 0.75rem;
   font-size: 1rem;
@@ -939,7 +939,7 @@ html.theming .theme-glyph svg {
 .cv-proj + .cv-proj { margin-top: 0.6rem; }
 .cv-proj ul { margin-top: 0.15rem; }
 
-@page { size: A4; margin: 7mm 13mm; }
+@page { size: A4; margin: 9mm 13mm; }
 
 @media print {
   html, body { background: #fff !important; }
