@@ -725,7 +725,7 @@ html.theming .theme-glyph svg {
 }
 .badges {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
   margin: 0;
   padding: 0;
@@ -939,7 +939,7 @@ html.theming .theme-glyph svg {
 .cv-proj + .cv-proj { margin-top: 0.6rem; }
 .cv-proj ul { margin-top: 0.15rem; }
 
-@page { size: A4; margin: 9mm 13mm; }
+@page { size: A4; margin: 7mm 13mm; }
 
 @media print {
   html, body { background: #fff !important; }
