@@ -1135,8 +1135,8 @@ html.theming .theme-glyph svg {
   position: absolute;
   top: 0;
   left: 0;
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #fff;
   will-change: transform;

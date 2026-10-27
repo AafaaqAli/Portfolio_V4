@@ -424,7 +424,7 @@ function track(name, params) {
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
   var COUNT = 18;
-  var SIZE = 26;
+  var SIZE = 20; // keep in step with the .ink-cursor span size in site.css
   var svgNS = "http://www.w3.org/2000/svg";
 
   // The goo filter blurs the drops together, then sharpens the edge back up,
@@ -436,7 +436,7 @@ function track(name, params) {
   svg.style.position = "absolute";
   svg.innerHTML =
     '<filter id="ink-goo" x="-50%" y="-50%" width="200%" height="200%">' +
-    '<feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur"/>' +
+    '<feGaussianBlur in="SourceGraphic" stdDeviation="4.6" result="blur"/>' +
     '<feColorMatrix in="blur" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/>' +
     "</filter>";
   document.body.appendChild(svg);
@@ -467,8 +467,8 @@ function track(name, params) {
     var scale = (COUNT - i) / COUNT;
     dot.angleX = Math.random() * Math.PI * 2;
     dot.angleY = Math.random() * Math.PI * 2;
-    dot.speedX = 0.6 + Math.random() * 0.9; // radians per second: one sway every 4-10 s
-    dot.speedY = 0.6 + Math.random() * 0.9;
+    dot.speedX = 1.1 + Math.random() * 1.4; // radians per second: one sway every 2.5-6 s
+    dot.speedY = 1.1 + Math.random() * 1.4;
     dot.range = (SIZE / 2 - (SIZE / 2) * scale + 2) * 0.6;
   });
 
