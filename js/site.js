@@ -303,7 +303,8 @@ function track(name, params) {
     "linkedin.com": "linkedin",
     "github.com": "github",
     "stackoverflow.com": "stackoverflow",
-    "upwork.com": "upwork"
+    "upwork.com": "upwork",
+    "academy.claude.com": "claude_academy"
   };
 
   function sectionName(el) {

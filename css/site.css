@@ -716,6 +716,63 @@ html.theming .theme-glyph svg {
   font-size: 0.82rem;
 }
 
+/* Claude Academy badges */
+.academy { margin-top: 2rem; }
+.academy h3 {
+  margin: 0 0 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+.badges {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.badge {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  box-shadow: var(--shadow);
+  text-decoration: none;
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+.badge:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+}
+.badge img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid var(--line);
+}
+.badge-name {
+  padding: 0.75rem 0.9rem 0;
+  color: var(--ink);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.badge-meta {
+  padding: 0.25rem 0.9rem 0.85rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.badge:hover .badge-meta { color: var(--accent); }
+@media (max-width: 800px) {
+  .badges { grid-template-columns: 1fr 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .badge { transition: none; }
+  .badge:hover { transform: none; }
+}
+
 /* Timeline */
 .timeline {
   list-style: none;
