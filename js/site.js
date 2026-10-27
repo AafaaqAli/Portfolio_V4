@@ -457,8 +457,29 @@ function track(name, params) {
   var grow = 1;
   var hovering = false;
   var running = false;
+  var IDLE_AFTER = 150; // ms without movement before the ink starts to wobble
+  var STILL = Math.floor(COUNT * 0.3); // the biggest drops stay put on the pointer
+  var lastMove = 0;
+  var idle = false;
+
+  // Give each small drop its own random orbit, so the resting blob keeps
+  // shifting shape like liquid instead of sitting still.
+  function startWobble() {
+    dots.forEach(function (dot, i) {
+      var scale = (COUNT - i) / COUNT;
+      dot.angleX = Math.random() * Math.PI * 2;
+      dot.angleY = Math.random() * Math.PI * 2;
+      dot.speedX = 0.03 + Math.random() * 0.05;
+      dot.speedY = 0.03 + Math.random() * 0.05;
+      dot.range = SIZE / 2 - (SIZE / 2) * scale + 2;
+    });
+  }
 
   function frame() {
+    if (!idle && performance.now() - lastMove > IDLE_AFTER) {
+      idle = true;
+      startWobble();
+    }
     // Swell over links and buttons so it is clear they can be clicked.
     grow += ((hovering ? 1.7 : 1) - grow) * 0.2;
     var x = mouse.x;
@@ -466,10 +487,17 @@ function track(name, params) {
     for (var i = 0; i < COUNT; i++) {
       var dot = dots[i];
       var scale = ((COUNT - i) / COUNT) * grow;
+      if (idle && i >= STILL) {
+        dot.angleX += dot.speedX;
+        dot.angleY += dot.speedY;
+        dot.x += (mouse.x + Math.sin(dot.angleX) * dot.range - dot.x) * 0.15;
+        dot.y += (mouse.y + Math.sin(dot.angleY) * dot.range - dot.y) * 0.15;
+      } else {
+        dot.x = x;
+        dot.y = y;
+      }
       dot.el.style.transform =
-        "translate(" + (x - SIZE / 2) + "px," + (y - SIZE / 2) + "px) scale(" + scale + ")";
-      dot.x = x;
-      dot.y = y;
+        "translate(" + (dot.x - SIZE / 2) + "px," + (dot.y - SIZE / 2) + "px) scale(" + scale + ")";
       // Each drop eases toward the one behind it, which draws out the tail.
       var next = dots[i + 1] || dots[0];
       x += (next.x - x) * 0.32;
@@ -491,6 +519,8 @@ function track(name, params) {
     }
     mouse.x = event.clientX;
     mouse.y = event.clientY;
+    lastMove = performance.now();
+    idle = false;
     layer.classList.add("is-visible");
     start();
   }, { passive: true });
